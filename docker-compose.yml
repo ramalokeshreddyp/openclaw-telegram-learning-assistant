@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: openclaw-ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+    command: serve
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - openclaw-network
+
+  openclaw-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: openclaw-gateway
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - OLLAMA_HOST=http://ollama:11434
+      - SEARXNG_URL=${SEARXNG_URL:-http://searxng:8888}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    ports:
+      - "8080:8080"
+    volumes:
+      - openclaw_memory:/root/.openclaw/memory
+      - openclaw_config:/root/.openclaw
+    networks:
+      - openclaw-network
+    command: openclaw gateway start
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  searxng:
+    image: searxng/searxng:latest
+    container_name: openclaw-searxng
+    environment:
+      - SEARXNG_BASE_URL=http://localhost:8888/
+    ports:
+      - "8888:8888"
+    volumes:
+      - searxng_data:/etc/searxng
+    networks:
+      - openclaw-network
+    restart: unless-stopped
+    profiles:
+      - with-searxng
+
+volumes:
+  ollama_data:
+  openclaw_memory:
+  openclaw_config:
+  searxng_data:
+
+networks:
+  openclaw-network:
+    driver: bridge

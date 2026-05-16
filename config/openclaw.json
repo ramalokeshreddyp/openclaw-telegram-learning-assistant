@@ -1,0 +1,59 @@
+{
+  "gatewayVersion": "1.0",
+  "model": {
+    "provider": "ollama",
+    "model": "llama3:8b",
+    "temperature": 0.7,
+    "maxTokens": 2048
+  },
+  "alternativeModels": [
+    {
+      "provider": "openai",
+      "model": "gpt-4o",
+      "apiKey": "${env.OPENAI_API_KEY}"
+    },
+    {
+      "provider": "anthropic",
+      "model": "claude-3-sonnet",
+      "apiKey": "${env.ANTHROPIC_API_KEY}"
+    }
+  ],
+  "webSearch": {
+    "provider": "duckduckgo",
+    "enabled": true
+  },
+  "alternativeSearchProviders": [
+    {
+      "provider": "searxng",
+      "url": "${env.SEARXNG_URL}",
+      "enabled": false
+    }
+  ],
+  "plugins": {
+    "entries": {
+      "telegram": {
+        "enabled": true,
+        "package": "@openclaw/plugin-telegram",
+        "config": {
+          "botToken": "${env.TELEGRAM_BOT_TOKEN}"
+        }
+      }
+    }
+  },
+  "memory": {
+    "type": "persistent",
+    "location": "/root/.openclaw/memory"
+  },
+  "automation": {
+    "cron": {
+      "enabled": true
+    },
+    "standingOrders": {
+      "enabled": true
+    }
+  },
+  "logging": {
+    "level": "info",
+    "format": "json"
+  }
+}
