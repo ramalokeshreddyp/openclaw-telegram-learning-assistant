@@ -1,0 +1,21 @@
+{
+  "cronJobs": [
+    {
+      "name": "nightly-tech-brief",
+      "description": "Triggers the daily-quiz skill every evening at 9 PM in the user's local timezone. The timezone is captured during onboarding and stored in memory under the user's profile. The job uses an isolated session so it does not bleed context from previous interactions.",
+      "cron": "0 21 * * *",
+      "timezone": "{{user.profile.timezone}}",
+      "defaultTimezone": "UTC",
+      "session": "isolated",
+      "channel": "telegram",
+      "announce": true,
+      "enabled": true,
+      "message": "Run the daily-quiz skill for the primary user. Retrieve their preferences from memory using their stored profile key (user_profile_{{user.id}}). Use the web_search tool to find fresh technical content in their domains. Generate exactly 5 interview questions appropriate to their experience level and 3 to 5 technical tidbits from the search results. Format the final brief using Telegram Markdown with the exact required structure and send it to them via the Telegram channel.",
+      "retryPolicy": {
+        "maxRetries": 2,
+        "retryDelaySeconds": 300
+      },
+      "notes": "The cron expression '0 21 * * *' means: at minute 0, hour 21, every day, every month, every day-of-week — i.e. 9:00 PM daily. The timezone value is resolved per-user at runtime from their stored memory profile. If the stored timezone is absent or invalid, the job falls back to UTC."
+    }
+  ]
+}

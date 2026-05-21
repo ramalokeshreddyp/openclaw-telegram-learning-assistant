@@ -21,7 +21,9 @@ The main objective is to build a Telegram bot that:
 ```text
 openclaw-telegram-learning-assistant/
 ├── config/
-│   └── openclaw.json
+│   ├── openclaw.json              Main OpenClaw configuration
+│   ├── cron.json                  Cron job: nightly-tech-brief (0 21 * * *)
+│   └── standing-orders.json       Standing order: trigger-user-onboarding
 ├── skills/
 │   ├── user-onboarding/
 │   │   └── SKILL.md
@@ -31,6 +33,7 @@ openclaw-telegram-learning-assistant/
 ├── docker-compose.yml
 ├── entrypoint.sh
 ├── .env.example
+├── answers.md
 ├── README.md
 ├── architecture.md
 └── projectdocumentation.md
@@ -38,8 +41,8 @@ openclaw-telegram-learning-assistant/
 
 ### Folder Responsibilities
 
-- `config/`: central OpenClaw settings
-- `skills/`: agent instructions in Markdown
+- `config/`: central OpenClaw settings, cron job definitions, and standing order definitions
+- `skills/`: agent instructions in Markdown (user-onboarding and daily-quiz)
 - root docs: usage, architecture, and implementation details
 - Docker files: reproducible local execution
 
@@ -250,9 +253,17 @@ This file configures:
 - Telegram channel plugin settings
 - web search provider
 - memory behavior
-- cron and standing order support
+- paths to cron and standing order config files
 
 No secrets are stored in the repository. Tokens are supplied through environment variables.
+
+### `config/cron.json`
+
+Registers the `nightly-tech-brief` cron job with schedule `0 21 * * *`, timezone sourced from each user's memory profile, isolated session, and the full prompt for the daily-quiz skill.
+
+### `config/standing-orders.json`
+
+Registers the `trigger-user-onboarding` standing order with condition `memory.user_profile_{{user.id}} does not exist`. When the condition is true, the `user-onboarding` skill is executed automatically.
 
 ## 16. Validation and Testing Strategy
 

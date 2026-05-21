@@ -1,0 +1,14 @@
+{
+  "standingOrders": [
+    {
+      "name": "trigger-user-onboarding",
+      "description": "Automatically runs the user-onboarding skill whenever a user who has no stored profile sends their first message. This is the mechanism that makes onboarding entirely automatic — no commands, no webhooks.",
+      "condition": "memory.user_profile_{{user.id}} does not exist",
+      "runSkill": "user-onboarding",
+      "channel": "telegram",
+      "enabled": true,
+      "priority": 1,
+      "notes": "Standing Order was chosen over a Webhook because OpenClaw's Standing Order integrates natively with the memory check, requires no external HTTP endpoint, and keeps all orchestration inside the gateway process. A Webhook approach would require an internet-accessible server and additional delivery-guarantee logic."
+    }
+  ]
+}
